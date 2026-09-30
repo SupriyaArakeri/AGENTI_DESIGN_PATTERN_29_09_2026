@@ -1,6 +1,6 @@
 # Agentic AI Design Patterns
 
-Demonstrations of two LangGraph workflows in one Streamlit app: a tool-using agent and a planner-executor agent.
+Demonstrations of three LangGraph workflows in one Streamlit app: a tool-using agent, a planner-executor agent, and a supervisor-worker agent.
 
 ## Features
 
@@ -10,6 +10,7 @@ Demonstrations of two LangGraph workflows in one Streamlit app: a tool-using age
 - Provides a Streamlit chat UI with conversation history and a clear button.
 - Evaluates arithmetic with a restricted AST evaluator instead of Python `eval`.
 - Demonstrates planner-executor orchestration: create a short plan, execute each step, and present both in the chat.
+- Demonstrates supervisor-worker routing between a math worker and a leave-balance worker.
 - Keeps each demonstration's chat history separate when switching patterns.
 
 ## Requirements
@@ -52,6 +53,11 @@ Planner-executor example:
 
 - `Create a simple 3-step plan for launching an AI chatbot product.`
 
+Supervisor-worker examples:
+
+- `What is the square of the average of 10 and 5?`
+- `What is the leave balance for Alice?`
+
 ## Workflow
 
 ```mermaid
@@ -83,6 +89,21 @@ flowchart TD
 	F --> G[Combined output]
 ```
 
+	### Supervisor-worker
+
+	The supervisor classifies a request as either `math` or `leave`. The graph routes the request to the corresponding worker, and the UI displays the selected worker and its result. The included leave-balance lookup contains demo values for Alice, Bob, and Carol; it is sample data, not a real HR system.
+
+	```mermaid
+	flowchart TD
+		A[User query] --> B[Supervisor]
+		B -->|math| C[Math worker]
+		B -->|leave| D[Leave worker]
+		C --> E[Safe calculator]
+		D --> F[Demo leave-balance lookup]
+		E --> G[Show selected worker and result]
+		F --> G
+	```
+
 ## Run tests
 
 The unit tests mock model responses, so they do not need an API key:
@@ -101,7 +122,9 @@ config/llm.py                OpenAI chat model setup
 pattern/tool_using/graph.py  LangGraph routing and workflow
 pattern/tool_using/nodes.py  Classifier, reasoning, math, and fallback nodes
 pattern/planner_executor/    Planner-executor graph, nodes, and state
+pattern/supervisor_worker/  Supervisor-worker graph, nodes, and state
 tools/calculator.py          Restricted arithmetic evaluator
+tools/leaves_db.py           Sample leave balances for the demo
 tests/                       Mocked workflow and calculator tests
 requirements.txt             Python dependencies
 ```
